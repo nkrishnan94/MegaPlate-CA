@@ -126,122 +126,83 @@ def make_pruned_tree_from_list(mut_pairs):
     t.prune(prune_list)
     return t
 
-def sim_user_abx(wt,ln, g, ab, 
-                 mut_rate,k, s_p,s,pk,
-                 mut_select,track_pairs):
-    
-    
-    
-    width = wt
-    length = ln
-    grid_size = g
-    
-    ## bacteria per grid cell as mapped to MegaPLate
-    bps = int(((60*((120/9)*5) * 10**8)/1)/(ln*wt))
-    ##setup nx graph to find neibors quickly
-    G = grid_graph(dim=[wt, ln])
-    
-    ##set up grid to keep track of cell state i.e. number of mutations
-    cells = np.full((ln,wt),-1)
-    cells[0] = 0 
-    if track_pairs == True:
-        ##set up grid to keep track of mutation events i.e. which order event resulted in the cell here if any
-        muts = np.full((ln,wt),0)
-    
-    #dstribution of for max of scamples drawn from poisson
-    t = np.linspace(0,pk,pk+1)
-    if mut_select == 3:
-        prob_dist = poisson_max_cdf(t,mut_rate,bps)
 
-    #new 
-    if mut_select == 0:
+##simulation of bacterial evolution over a rectangle of given size with discrete (horizontal) bands of specified antiobitic concentration
+##outputs the cellstate over the entire course of evolution
+def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk,density):
+    ##set up networkx grid to calculate neighbors
+   ##set up networkx grid to calculate neighbors
+    G = grid_graph(dim=[width, length])
 
-        t = np.linspace(0,pk,pk+1)
-        poisson_unbias = poisson.pmf(t,mut_rate)
-        poisson_biased=[]
-        for i in np.unique(abx_grad):
-            poisson_biased.append((poisson.pmf(t,mut_rate)*((fitness(i,t,k,s_p,s,pk)+1)/2))/(sum(poisson.pmf(t,mut_rate)*((fitness(i,t,k,s_p,s,pk)+1)/2))))
+    ##set up array to track mutation states of cells in grid
+    cells = np.full((length,width),-1)
 
-    if mut_select == 1:
-        t = np.linspace(0,pk,pk+1)
-        poisson__max_unbias = poisson_max_cdf(t,mut_rate,bps)
-        poisson_biased=[]
-        for i in np.unique(abx_grad):
-            poisson_biased.append((poisson__max_unbias*((fitness(i,t,k,s_p,s,pk)+1)/2)))   
-        
+    ##'innoculate' the first row with wild type cells
+    cells[0] = 0
+
+    ##actual cells per grid cell, as scaled by the MegaPLate experiment,  Baym et. al 
+    cells_per_grid = density
+
+    ##mutation odds over mutation space based on the 
+    ##expected maximum value for the number (of cells in grid_cell) drawn from a  poisson distruibtion  
+    mut_space = np.linspace(0,pk,pk+1)
+    #prob_dist = poisson_max_cdf(np.linspace(0,100,101),mut_rate,cells_per_grid)
+    prob_dist = poisson.cdf(np.linspace(0,100,101),mut_rate)
+    ##save all cell 
+    #cell_history = []
+
+    ##indicate that the half time has been reached yet
+    half_time =0 
+
+    count= 0
     
-    
-    
-    ##set up grid that maps abx conc.  to space
-    ab = ab
-    
-    #storing cells and mutation
-    cell_history = []
-    mut_pairs = []
-    mut_ID = 0
-    half_time = 0
-    ##begin evolution
+    ##when to stop running the cimulation
     #while all(cells[-1] == -1) and len(cell_history) != 40002:
     #while all(cells[-int(ln/g)+2] == -1) and len(cell_history) != 40002:
-        
-    while all(cells[-1] == -1):
-        
-        ## save current state map to list
-        cell_history.append(cells.tolist())
-        if half_time ==0:
-            if all(cells[-3*int(ln/g)+2] == -1) == False:
-                half_time = len(cell_history)
-        
+    
+    #stop running when a cell has made it (two rows in) to the last band
+    while all(cells[-int(length/divs)+2] == -1):
+
+
+
         ##find slots where there is a living cells
-        cells_where =  np.where(cells != -1)
-        
-        
+        cells_where =  np.where(cells >= 0)
+
+
         ##create a randomized list of the living cells with which to iterate through
-        cells_list = []
+        live_cells_list = []
         for x, y in zip(cells_where[0], cells_where[1]):
-            cells_list.append([x,y])
-            
-        np.random.shuffle(cells_list)
+            live_cells_list.append([x,y])
+
+        np.random.shuffle(live_cells_list)
         
-        ##decide if each living in this generation will die, live, or mutate
-        for j in cells_list: 
-            g_draw = 2 * random() -1
-            
-            ##death
-            j_muts = cells[tuple(j)]
-            antibiotic_value = ab[tuple(j)]
-            if fitness(antibiotic_value,j_muts,k,s_p,s,pk) < g_draw :
-                cells[tuple(j)] == -1
-            else:
-                neighbors = [x for x in G.neighbors(tuple(j))]
+        
+        for j in live_cells_list:
+                
+                        ##assign some amount (including 0) of additional mutations to the parent cell spot
+                        #which now effectively becomes one of the daughter cells
 
-                #find which of the neighboring cells are empty, and divide, with a daughter cell in that space
-                empty = np.where(-1 == np.array([cells[tuple(x)] for x in neighbors]) )
-                if len(empty[0]) != 0:
-                    pick = neighbors[choice(empty)[0]]
-
-                    #mutated daughter cells
-                    #m = mutation(random(),prob_dist)
-                    #m = np.random.poisson(mut_rate)
-
-                    if mut_select == 2:
-                        m = np.random.poisson(mut_rate)
-                    if mut_select ==3:
-                        m = mutation(random(),prob_dist)
-                    if mut_select ==0:
-                        m = np.random.choice(t,1,p = poisson_biased[np.where(ab[tuple(j)]== np.unique(ab))[0][0]])
-
-                    if m != 0:
-                        if track_pairs == True:
-                            mut_ID = mut_ID +1
-                            mut_pairs.append([muts[tuple(j)],mut_ID])
-
-                            muts[tuple(j)] = mut_ID
-                        cells[tuple(j)] = cells[tuple(j)]+m
-                    #divide
-                    cells[tuple(pick)] = cells[tuple(j)]
                     
+            empty_neighbors = [x for x in G.neighbors(tuple(j)) if cells[tuple((x))] ==-1 ] 
+            #if the array containing the empty neighbors is not empty picj one at random
+            if empty_neighbors:
+                g_draw = 2 * random() -1
+                if fitness_func(abx[tuple(j)],cells[tuple(j)],k,s_p,s,pk)> g_draw :
+                    pick = choice(empty_neighbors)
+                    m = mutation(random(),prob_dist)
 
+                    m_net = []
+                    for i in range(m):
+                        m_net.append(choice([-1,1]))
+                        cells[tuple(j)] = cells[tuple(j)]+sum(m_net)
 
-        
-    return cell_history, mut_pairs, half_time
+                    ##other daughter cells occupies chosen empty spot
+                    cells[tuple(pick)] = cells[tuple(j)]
+
+                    ##check if half way has been reached, only need to check when a 
+                    #division occurs instead of each iteration to save time
+                    if all(cells[-3*int(length/divs)+2] == -1) and half_time==0:
+                        half_time = count
+                    
+        count = count +1   
+    return count,half_time,cells
