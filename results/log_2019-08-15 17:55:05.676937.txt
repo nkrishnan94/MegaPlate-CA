@@ -1,4 +1,4 @@
-2019-08-15 15:32:47.186586
+2019-08-15 17:55:05.676937
 length: [40.000000, 50.000000, ]
 width: [36.000000, 45.000000, ]
 Antibiotic divisions: 5.000000
@@ -40,4 +40,4 @@ number of repitions fo each set of parameters: 1.000000
 29 out of 32 runs completed 
 30 out of 32 runs completed 
 31 out of 32 runs completed 
-results saved: /Users/nikhilkrishnan/Dropbox/Nikhil/bacterial CA/MegaPlate-CA/results/results_2019-08-15 15:32:47.186586.shlf
+results saved: /Users/nikhilkrishnan/Dropbox/Nikhil/bacterial CA/MegaPlate-CA/results/results_2019-08-15 17:55:05.676937.shlf

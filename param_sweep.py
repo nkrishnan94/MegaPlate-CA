@@ -4,7 +4,7 @@ import shelve
 import datetime
 import os
 
-cwd = 
+
 results_dir = 'results'
 start = datetime.datetime.now()
 
@@ -21,7 +21,7 @@ log_file = open("%s/log_%s.txt" % (cwd,start),"w+")
 log_file.write("%s\r\n" % start)
 
 
-length = [40,60,100,140,200,300]
+length = [40, 50]
 log_file.write("length: [" )
 for item in length:
     log_file.write("%f, " % item)
@@ -39,13 +39,13 @@ divs = 5
 log_file.write("Antibiotic divisions: %f\n" % divs )
 
 
-mut_rate = [0.0001,0.004,0.008,.001,0.004,0.008.01,0.4,0.8,0.1]
+mut_rate = [.001,.01]
 log_file.write("mutations rates: [" )
 for item in mut_rate:
     log_file.write("%f, " % item)
 log_file.write("]\n" )
 
-k = [0.4,0.8,2,4]
+k = [0.4,0.8]
 
 log_file.write("k, or 'hill-like' constant: [" )
 for item in k:
@@ -59,15 +59,15 @@ log_file.write("s_p, or minimum fitness: %f\n" % s_p )
 s = 1
 log_file.write("s_p, or maximum fitness: %f\n" % s )
 
-pk = [100,200,300,500,1000,5000]
+pk = [200,300]
 log_file.write("pk, or maximum possible mutations: [" % pk)
 for item in pk:
     log_file.write("%f, " % item)
 log_file.write("]\n" )
 
-reps = 10
+reps = 1
 log_file.write("number of repitions fo each set of parameters: %f\n" % reps)
-
+log_file.close()
 
 tot_runs = reps*len(length)*len(width)*len(mut_rate)*len(k)*len(pk)
 ##empty list for each dictiorary result to be saved as db file
@@ -94,7 +94,9 @@ for a in range(reps):
                                                                       s = s, pk=pk[f])
                         time = t
                         muts = np.array(cells).max()
+                        log_file = open("%s/log_%s.txt" % (cwd,start),"a+")
                         log_file.write('%d out of %d runs completed \n' % (i,tot_runs))
+                        log_file.close()
                         i = i+1
 
                         Results.append({"reps":a,"mut_rate":mut_rate[d],"length":length[b],"k":k[e],'pk':pk[f],"time":t,"muts":muts,"half_time":t_half})
@@ -107,6 +109,7 @@ shelf = shelve.open("%s" % shlf_file)
 # serializing
 shelf["my_dict"] = Results
 shelf.close()
+log_file = open("%s/log_%s.txt" % (cwd,start),"a+")
 log_file.write("results saved: %s" % shlf_file)
 log_file.close()
 

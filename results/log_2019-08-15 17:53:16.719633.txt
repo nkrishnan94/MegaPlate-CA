@@ -1,4 +1,4 @@
-2019-08-15 14:55:23.526165
+2019-08-15 17:53:16.719633
 length: [40.000000, 50.000000, ]
 width: [36.000000, 45.000000, ]
 Antibiotic divisions: 5.000000
@@ -8,3 +8,13 @@ s_p, or minimum fitness: -1.000000
 s_p, or maximum fitness: 1.000000
 pk, or maximum possible mutations: [200.000000, 300.000000, ]
 number of repitions fo each set of parameters: 1.000000
+0 out of 32 runs completed 
+1 out of 32 runs completed 
+2 out of 32 runs completed 
+3 out of 32 runs completed 
+4 out of 32 runs completed 
+5 out of 32 runs completed 
+6 out of 32 runs completed 
+7 out of 32 runs completed 
+8 out of 32 runs completed 
+9 out of 32 runs completed 

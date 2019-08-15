@@ -1,4 +1,4 @@
-2019-08-15 14:55:47.678056
+2019-08-15 18:01:30.464034
 length: [40.000000, 50.000000, ]
 width: [36.000000, 45.000000, ]
 Antibiotic divisions: 5.000000
@@ -38,6 +38,3 @@ number of repitions fo each set of parameters: 1.000000
 27 out of 32 runs completed 
 28 out of 32 runs completed 
 29 out of 32 runs completed 
-30 out of 32 runs completed 
-31 out of 32 runs completed 
-results saved: MegaPlate_7619.shlf
