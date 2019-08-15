@@ -2,10 +2,23 @@ from funcs import megaplate_sim
 import numpy as np
 import shelve
 import datetime
+import os
 
+cwd = os.getcwd()
+results_dir = 'results'
+start = datetime.datetime.now()
 
-log_file = open("log_%s.txt" % datetime.datetime.now(),"w+")
-log_file.write("%s\r\n" % datetime.datetime.now())
+try:
+    # Create target Directory
+    os.mkdir(results_dir)
+    print("Directory " , results_dir,  " Created ") 
+except FileExistsError:
+    print("Directory " , results_dir ,  " already exists")
+
+cwd = os.getcwd()+'/'+results_dir
+
+log_file = open("%s/log_%s.txt" % (cwd,start),"w+")
+log_file.write("%s\r\n" % start)
 
 
 length = [40, 50]
@@ -58,7 +71,7 @@ log_file.write("number of repitions fo each set of parameters: %f\n" % reps)
 
 tot_runs = reps*len(length)*len(width)*len(mut_rate)*len(k)*len(pk)
 ##empty list for each dictiorary result to be saved as db file
-MegaPlate_7619 = []
+Results = []
 
 #counter for log files
 i = 0     
@@ -84,15 +97,15 @@ for a in range(reps):
                         log_file.write('%d out of %d runs completed \n' % (i,tot_runs))
                         i = i+1
 
-MegaPlate_7619.append({"reps":a,"mut_rate":mut_rate[d],"length":length[b],"k":k[e],'pk':pk[f],"time":t,"muts":muts,"half_time":t_half})
+                        Results.append({"reps":a,"mut_rate":mut_rate[d],"length":length[b],"k":k[e],'pk':pk[f],"time":t,"muts":muts,"half_time":t_half})
 
 
 # file to be useds
-shlf_file = "MegaPlate_7619.shlf"
+shlf_file = "%s/results_%s.shlf" % (cwd,start)
 shelf = shelve.open("%s" % shlf_file)
 
 # serializing
-shelf["my_dict"] = MegaPlate_7619
+shelf["my_dict"] = Results
 shelf.close()
 log_file.write("results saved: %s" % shlf_file)
 log_file.close()
