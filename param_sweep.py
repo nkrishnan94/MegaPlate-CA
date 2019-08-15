@@ -4,7 +4,7 @@ import shelve
 import datetime
 import os
 
-cwd = os.getcwd()
+cwd = 
 results_dir = 'results'
 start = datetime.datetime.now()
 
@@ -21,7 +21,7 @@ log_file = open("%s/log_%s.txt" % (cwd,start),"w+")
 log_file.write("%s\r\n" % start)
 
 
-length = [40, 50]
+length = [40,60,100,140,200,300]
 log_file.write("length: [" )
 for item in length:
     log_file.write("%f, " % item)
@@ -39,13 +39,13 @@ divs = 5
 log_file.write("Antibiotic divisions: %f\n" % divs )
 
 
-mut_rate = [.001,.01]
+mut_rate = [0.0001,0.004,0.008,.001,0.004,0.008.01,0.4,0.8,0.1]
 log_file.write("mutations rates: [" )
 for item in mut_rate:
     log_file.write("%f, " % item)
 log_file.write("]\n" )
 
-k = [0.4,0.8]
+k = [0.4,0.8,2,4]
 
 log_file.write("k, or 'hill-like' constant: [" )
 for item in k:
@@ -59,13 +59,13 @@ log_file.write("s_p, or minimum fitness: %f\n" % s_p )
 s = 1
 log_file.write("s_p, or maximum fitness: %f\n" % s )
 
-pk = [200,300]
+pk = [100,200,300,500,1000,5000]
 log_file.write("pk, or maximum possible mutations: [" % pk)
 for item in pk:
     log_file.write("%f, " % item)
 log_file.write("]\n" )
 
-reps = 1
+reps = 10
 log_file.write("number of repitions fo each set of parameters: %f\n" % reps)
 
 
