@@ -1,0 +1,10 @@
+2019-08-15 14:55:23.526165
+length: [40.000000, 50.000000, ]
+width: [36.000000, 45.000000, ]
+Antibiotic divisions: 5.000000
+mutations rates: [0.001000, 0.010000, ]
+k, or 'hill-like' constant: [0.400000, 0.800000, ]
+s_p, or minimum fitness: -1.000000
+s_p, or maximum fitness: 1.000000
+pk, or maximum possible mutations: [200.000000, 300.000000, ]
+number of repitions fo each set of parameters: 1.000000

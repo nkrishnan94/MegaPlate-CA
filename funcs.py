@@ -47,7 +47,7 @@ def flip(allele):
     return allele
 
 
-def fitness(d,m,k,s_p,s,pk):
+def fitness_func(d,m,k,s_p,s,pk):
     p = s - s_p
     y = s + (p)* ((d**k)/((d**k)- (s-p)/s))*((m - pk)/pk)
     return y
@@ -129,7 +129,7 @@ def make_pruned_tree_from_list(mut_pairs):
 
 ##simulation of bacterial evolution over a rectangle of given size with discrete (horizontal) bands of specified antiobitic concentration
 ##outputs the cellstate over the entire course of evolution
-def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk,density):
+def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk):
     ##set up networkx grid to calculate neighbors
    ##set up networkx grid to calculate neighbors
     G = grid_graph(dim=[width, length])
@@ -140,8 +140,7 @@ def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk,density):
     ##'innoculate' the first row with wild type cells
     cells[0] = 0
 
-    ##actual cells per grid cell, as scaled by the MegaPLate experiment,  Baym et. al 
-    cells_per_grid = density
+    
 
     ##mutation odds over mutation space based on the 
     ##expected maximum value for the number (of cells in grid_cell) drawn from a  poisson distruibtion  

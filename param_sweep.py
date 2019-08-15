@@ -42,10 +42,11 @@ log_file.write("]\n" )
 
 s_p= -1
 log_file.write("s_p, or minimum fitness: %f\n" % s_p )
+
 s = 1
 log_file.write("s_p, or maximum fitness: %f\n" % s )
-pk = [200,300]
 
+pk = [200,300]
 log_file.write("pk, or maximum possible mutations: [" % pk)
 for item in pk:
     log_file.write("%f, " % item)
@@ -54,7 +55,6 @@ log_file.write("]\n" )
 reps = 1
 log_file.write("number of repitions fo each set of parameters: %f\n" % reps)
 
-density = 
 
 tot_runs = reps*len(length)*len(width)*len(mut_rate)*len(k)*len(pk)
 ##empty list for each dictiorary result to be saved as db file
@@ -69,6 +69,7 @@ for a in range(reps):
                 for e in range(len(k)):
                     for f in range(len(pk)):
 
+
                         l = [val for sublist in [[j for i in range(int(length[b]/divs))] for j in range (0,divs)] for val in sublist]
                         ab =[[3*10**(i-1)]*width[c] for i  in l if i != 0]
                         [ab.insert(i, [0]*width[c]) for i in range(0,int(length[b]/divs))]
@@ -77,7 +78,7 @@ for a in range(reps):
 
                         t,t_half,cells =megaplate_sim(width = int(width[c]),length = int(length[b]), divs=divs,abx = abx_grad,
                                                                       mut_rate= mut_rate[b],k = k[e], s_p = s_p,
-                                                                      s = s, pk=pk[f],density)
+                                                                      s = s, pk=pk[f])
                         time = t
                         muts = np.array(cells).max()
                         log_file.write('%d out of %d runs completed \n' % (i,tot_runs))
