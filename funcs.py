@@ -129,9 +129,8 @@ def make_pruned_tree_from_list(mut_pairs):
 
 ##simulation of bacterial evolution over a rectangle of given size with discrete (horizontal) bands of specified antiobitic concentration
 ##outputs the cellstate over the entire course of evolution
-def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk):
+def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk,fitness_function):
     ##set up networkx grid to calculate neighbors
-   ##set up networkx grid to calculate neighbors
     G = grid_graph(dim=[width, length])
 
     ##set up array to track mutation states of cells in grid
@@ -140,28 +139,30 @@ def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk):
     ##'innoculate' the first row with wild type cells
     cells[0] = 0
 
-    
 
     ##mutation odds over mutation space based on the 
     ##expected maximum value for the number (of cells in grid_cell) drawn from a  poisson distruibtion  
     mut_space = np.linspace(0,pk,pk+1)
     #prob_dist = poisson_max_cdf(np.linspace(0,100,101),mut_rate,cells_per_grid)
     prob_dist = poisson.cdf(np.linspace(0,100,101),mut_rate)
-    ##save all cell 
-    #cell_history = []
+
 
     ##indicate that the half time has been reached yet
-    half_time =0 
 
-    count= 0
+    #iniate counter
+    count = 0 
     
-    ##when to stop running the cimulation
-    #while all(cells[-1] == -1) and len(cell_history) != 40002:
-    #while all(cells[-int(ln/g)+2] == -1) and len(cell_history) != 40002:
+    #set halfway mark flag to 0
+    half_time = 0
+
+    #save all mutation
+    mut_count = 0
+    mut_states = np.full((length,width),0)
+    mut_pairs = []
     
-    #stop running when a cell has made it (two rows in) to the last band
+    
+    #stop running when a cell has made it to the last band(two gridcells in)
     while all(cells[-int(length/divs)+2] == -1):
-
 
 
         ##find slots where there is a living cells
@@ -177,31 +178,46 @@ def megaplate_sim(length ,width, divs,abx,mut_rate, k,s_p,s,pk):
         
         
         for j in live_cells_list:
-                
-                        ##assign some amount (including 0) of additional mutations to the parent cell spot
-                        #which now effectively becomes one of the daughter cells
-
+            #cfeate list of tuples of jth cells empty neighbors if any
                     
             empty_neighbors = [x for x in G.neighbors(tuple(j)) if cells[tuple((x))] ==-1 ] 
-            #if the array containing the empty neighbors is not empty picj one at random
+            #if the array containing the empty neighbors is not empty allow it to mutate
             if empty_neighbors:
+                #random number between -1 and 1 
                 g_draw = 2 * random() -1
-                if fitness_func(abx[tuple(j)],cells[tuple(j)],k,s_p,s,pk)> g_draw :
+                
+                #compare random number to computed fitness to see if fitness is greater than drawn value
+                if fitness_function(abx[tuple(j)],cells[tuple(j)],k,s_p,s,pk)> g_draw :
+                    #choose an neighbor at random (from list of tuples)
                     pick = choice(empty_neighbors)
-                    m = mutation(random(),prob_dist)
+                    #number of mutations to be applied to daughter cells
+                    m = mutation(random(),prob_dist)*choice([-1,1])
+                    
+                    if m != 0:
+                        #mutations are applied to daughter cell in current grid cell                   
+                        cells[tuple(j)] += m
+                    
+                        ##create list pair of the parent and daughter cells mutation event count
+                        mut_pairs.append([mut_states[tuple(j)],mut_count])
 
-                    m_net = []
-                    for i in range(m):
-                        m_net.append(choice([-1,1]))
-                        cells[tuple(j)] = cells[tuple(j)]+sum(m_net)
-
+                        #update the count of the mutation event that the daughter cell in same grid cell just inherited
+                        mut_states[tuple(j)] = mut_count
+                        
+                        #advance count of mutation event
+                        mut_count += 1
+                    
+                    #update the count of the mutation event that the other daughter cell inherited
+                    mut_states[tuple(pick)] = mut_states[tuple(j)]
+                                        
                     ##other daughter cells occupies chosen empty spot
                     cells[tuple(pick)] = cells[tuple(j)]
 
-                    ##check if half way has been reached, only need to check when a 
-                    #division occurs instead of each iteration to save time
-                    if all(cells[-3*int(length/divs)+2] == -1) and half_time==0:
-                        half_time = count
+                    ##check if made it to half way
+                    if all(cells[-3*int(length/divs)+2]!=-1) and half_time ==0:
+                        half_time = count + 1
                     
-        count = count +1   
-    return count,half_time,cells
+
+
+
+        count += 1            
+    return count,half_time,cells,mut_pairs

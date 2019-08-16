@@ -1,8 +1,9 @@
-from funcs import megaplate_sim
+from funcs import megaplate_sim, fitness_func
 import numpy as np
 import shelve
 import datetime
 import os
+import inspect
 
 
 results_dir = 'results'
@@ -65,6 +66,14 @@ for item in pk:
     log_file.write("%f, " % item)
 log_file.write("]\n" )
 
+log_file.write("pk, or maximum possible mutations: [" % pk)
+for item in pk:
+    log_file.write("%f, " % item)
+log_file.write("]\n" )
+
+fitness_function_source = inspect.getsource(fitness_func)
+log_file.write("fitness_function, or the function used to compute fitness for cell with each iteration is as folows: \n %s\n" % fitness_function_source )
+
 reps = 1
 log_file.write("number of repitions fo each set of parameters: %f\n" % reps)
 log_file.close()
@@ -89,9 +98,10 @@ for a in range(reps):
                         abx_grad = np.array(ab)
 
 
-                        t,t_half,cells =megaplate_sim(width = int(width[c]),length = int(length[b]), divs=divs,abx = abx_grad,
-                                                                      mut_rate= mut_rate[b],k = k[e], s_p = s_p,
-                                                                      s = s, pk=pk[f])
+                        t,t_half,cells,mut_pairs =megaplate_sim(width = int(width[c]),length = int(length[b]),
+                            divs=divs,abx = abx_grad,
+                            mut_rate= mut_rate[b],k = k[e], s_p = s_p,
+                            s = s, pk=pk[f],fitness_function =fitness_func)
                         time = t
                         muts = np.array(cells).max()
                         log_file = open("%s/log_%s.txt" % (cwd,start),"a+")
@@ -99,18 +109,19 @@ for a in range(reps):
                         log_file.close()
                         i = i+1
 
-                        Results.append({"reps":a,"mut_rate":mut_rate[d],"length":length[b],"k":k[e],'pk':pk[f],"time":t,"muts":muts,"half_time":t_half})
+                        Results.append({"reps":a,"mut_rate":mut_rate[d],
+                            "length":length[b],"k":k[e],'pk':pk[f],
+                            "time":t,"muts":muts,"half_time":t_half, 
+                            "mut_pairs":mut_pairs})
 
 
 # file to be useds
-shlf_file = "%s/results_%s.shlf" % (cwd,start)
-shelf = shelve.open("%s" % shlf_file)
+data_file = "%s/results_%s.npy" % (cwd,start)
+np.save(data_file,np.array(Results))
 
-# serializing
-shelf["my_dict"] = Results
-shelf.close()
+
 log_file = open("%s/log_%s.txt" % (cwd,start),"a+")
-log_file.write("results saved: %s" % shlf_file)
+log_file.write("results saved: %s" % data_file)
 log_file.close()
 
 
